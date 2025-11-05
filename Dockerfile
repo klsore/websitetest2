@@ -1,13 +1,17 @@
-FROM golang:1.20-alpine AS build
+# Use Go 1.24
+FROM golang:1.24-alpine AS build
 
 WORKDIR /app
 COPY . .
 
-RUN go mod init app || true
+# Ensure module exists
+RUN go mod tidy
+
+# Build binary
 RUN go build -o app .
 
+# Minimal runtime
 FROM alpine:3.18
 WORKDIR /app
 COPY --from=build /app/app .
-EXPOSE 8080
 CMD ["./app"]
