@@ -1,18 +1,13 @@
-# Stage 1: Build the Go app
-FROM golang:1.18 AS builder
+FROM golang:1.20-alpine AS build
 
 WORKDIR /app
 COPY . .
 
-RUN go mod init testapp || true
-RUN go build -o myapp
+RUN go mod init app || true
+RUN go build -o app .
 
-# Stage 2: Minimal runtime image
-FROM registry.access.redhat.com/ubi8/ubi-minimal
-
+FROM alpine:3.18
 WORKDIR /app
-COPY --from=builder /app/myapp .
-
+COPY --from=build /app/app .
 EXPOSE 8080
-
-CMD ["./myapp"]
+CMD ["./app"]
